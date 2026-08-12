@@ -125,6 +125,16 @@ const 전설목록 = [
   { dex: 1008,  이름: "미라이돈",      세대: 9, 주인: null,            일시: null,         난이도: 5 },
   { dex: 1009,  이름: "굽이치는물결",  세대: 9, 주인: null,            일시: null,         난이도: 1 },
   { dex: 1010,  이름: "무쇠잎새",      세대: 9, 주인: "godgom",        일시: "2026-08-10", 난이도: 1 },
+  { dex: 1014,  이름: "이야후",        세대: 9, 주인: null,            일시: null,         난이도: 0 },
+  { dex: 1015,  이름: "기로치",        세대: 9, 주인: null,            일시: null,         난이도: 0 },
+  { dex: 1016,  이름: "조타구",        세대: 9, 주인: null,            일시: null,         난이도: 0 },
+  { dex: 1017,  이름: "오거폰",        세대: 9, 주인: null,            일시: null,         난이도: 0 },
+  { dex: 1020,  이름: "꿰뚫는화염",    세대: 9, 주인: null,            일시: null,         난이도: 0 },
+  { dex: 1021,  이름: "날뛰는우레",    세대: 9, 주인: null,            일시: null,         난이도: 0 },
+  { dex: 1022,  이름: "무쇠암석",      세대: 9, 주인: null,            일시: null,         난이도: 0 },
+  { dex: 1023,  이름: "무쇠감투",      세대: 9, 주인: null,            일시: null,         난이도: 0 },
+  { dex: 1024,  이름: "테라파고스",    세대: 9, 주인: null,            일시: null,         난이도: 0 },
+  { dex: 1025,  이름: "복숭악동",      세대: 9, 주인: null,            일시: null,         난이도: 0 },
 
   // ── 히든 ──
   { dex: 0,     이름: "???",           세대: 0, 주인: null,            일시: null,         난이도: 5, 히든: true },
@@ -151,6 +161,23 @@ const 난이도등급 = {
   4: { 이름: "어려움",    색: "#C2733C" },
   5: { 이름: "극악",      색: "#B4483F" },
 };
+
+/* ══════════════════════════════════════════════════════════════
+   ③  픽셀몬 미구현 목록
+
+   픽셀몬에 아직 들어오지 않은 포켓몬의 "이름"만 적으면 됩니다.
+   위 전설목록의 이름과 글자 하나까지 같아야 합니다.
+
+   표시된 항목은 빗금 배경 + 흐린 처리가 되고,
+   「전체 배치」의 미구현 버튼으로 이것들만 모아볼 수 있습니다.
+
+   예)  const 미구현목록 = ["테라파고스", "오거폰"];
+   ══════════════════════════════════════════════════════════════ */
+const 미구현목록 = [
+  "이야후", "기로치", "조타구", "오거폰",
+  "꿰뚫는화염", "날뛰는우레", "무쇠암석", "무쇠감투",
+  "테라파고스", "복숭악동",
+];
 
 /* 같은 폴더에 data.json 이 있으면 위 목록 대신 그 파일을 씁니다.
    나중에 서버에서 JSON 을 자동으로 뽑을 때 쓰려고 열어둔 통로입니다.
@@ -402,6 +429,38 @@ h2{
 .portrait .qmark{ font-size:46px; }
 .chip .mystery .qmark{ font-size:26px; }
 
+/* ───────── 미구현 ───────── */
+:root{ --void:#59607A; }
+
+.cell.unimpl, .chip.unimpl, .entry.unimpl{
+  background-image:repeating-linear-gradient(
+    -45deg, transparent 0 7px, rgba(89,96,122,.10) 7px 14px);
+}
+.cell.unimpl .sprite img,
+.chip.unimpl .sprite img,
+.entry.unimpl .portrait img{ filter:grayscale(1) brightness(.45) !important; opacity:.55; }
+
+.cell.unimpl .label, .chip.unimpl .cname{ color:var(--void); }
+
+.badge-void{
+  position:absolute; top:6px; left:6px;
+  font-family:var(--mono); font-size:8.5px; font-weight:600; letter-spacing:.08em;
+  color:var(--void); border:1px solid var(--void); border-radius:2px;
+  padding:1px 4px; line-height:1.4; pointer-events:none;
+}
+.chip .badge-void{ top:2px; left:2px; font-size:7px; padding:0 3px; }
+.entry .badge-void{ top:14px; right:14px; left:auto; font-size:9.5px; padding:2px 6px; }
+
+.entry.unimpl .name{ color:var(--void); }
+
+/* 미구현 안내줄 */
+.voidnote{
+  font-family:var(--mono); font-size:11.5px; color:var(--void);
+  border:1px dashed var(--void); padding:10px 13px; margin:16px 0 0;
+  display:flex; gap:8px; align-items:baseline; flex-wrap:wrap;
+}
+.voidnote b{ color:var(--bone); font-weight:600; }
+
 /* ───────── 티어표 ───────── */
 .tiers{ display:flex; flex-direction:column; gap:1px; background:var(--rule); border:1px solid var(--rule); }
 
@@ -518,8 +577,14 @@ h2{
         <button type="button" data-view="tier" aria-pressed="false">티어표</button>
       </div>
     </div>
+    <div class="viewtabs" id="scopetabs" role="group" aria-label="범위" style="margin-bottom:16px">
+      <button type="button" data-scope="all"    aria-pressed="true">전체</button>
+      <button type="button" data-scope="impl"   aria-pressed="false">구현됨만</button>
+      <button type="button" data-scope="unimpl" aria-pressed="false">미구현만</button>
+    </div>
     <div class="board" id="board"></div>
     <div class="tiers hidden" id="tiers"></div>
+    <p class="voidnote" id="voidnote"></p>
     <div class="spread" id="spread"></div>
   </section>
 
@@ -562,11 +627,30 @@ h2{
   "use strict";
 
   let 목록 = 전설목록.slice();
-  const 상태 = { state:"all", sort:"dex", gen:null, diff:null, q:"", view:"grid" };
+  const 상태 = { state:"all", sort:"dex", gen:null, diff:null, q:"", view:"grid", scope:"all" };
 
   const $  = (s) => document.querySelector(s);
   const el = (tag, cls) => { const n = document.createElement(tag); if (cls) n.className = cls; return n; };
   const 봉인됨 = (m) => !!(m.주인 && String(m.주인).trim());
+
+  /* 미구현 판별 — 이름으로 대조 */
+  const 미구현셋 = new Set((typeof 미구현목록 !== "undefined" ? 미구현목록 : []).map((x) => String(x).trim()));
+  const 미구현 = (m) => 미구현셋.has(String(m.이름).trim());
+
+  /* 「전체 배치」에만 적용되는 범위 필터 */
+  function 배치대상(){
+    if (상태.scope === "unimpl") return 목록.filter(미구현);
+    if (상태.scope === "impl")   return 목록.filter((m) => !미구현(m));
+    return 목록;
+  }
+
+  /* 미구현 배지 */
+  function 배지(el0){
+    const b = el("span", "badge-void");
+    b.textContent = "미구현";
+    el0.appendChild(b);
+  }
+
   const CDN = "https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/";
   const 스프라이트 = (m) => (이미지출처 === "cdn")
     ? `${CDN}${m.cdn || m.dex}.png`
@@ -642,19 +726,32 @@ h2{
   function 격자그리기(){
     const board = $("#board");
     board.textContent = "";
-    목록.forEach((m, i) => {
-      const b = el("button", "cell" + (봉인됨(m) ? " sealed" : "") + " anim");
+    const 대상 = 배치대상();
+
+    if (!대상.length){
+      const e = el("div", "empty");
+      e.textContent = 상태.scope === "unimpl"
+        ? "미구현으로 표시된 전설이 없습니다. 파일 상단의 미구현목록에 이름을 적어주세요."
+        : "표시할 전설이 없습니다.";
+      board.appendChild(e);
+      return;
+    }
+
+    대상.forEach((m, i) => {
+      const nv = 미구현(m);
+      const b = el("button", "cell" + (봉인됨(m) ? " sealed" : "") + (nv ? " unimpl" : "") + " anim");
       b.type = "button";
       b.style.animationDelay = Math.min(i * 9, 500) + "ms";
       const dg = 난이도등급[m.난이도];
       const dtxt = dg ? ` · 난이도 ${m.난이도} ${dg.이름}` : "";
-      b.title = (봉인됨(m) ? `${m.이름} — ${m.주인}` : `${m.이름} — 미청구`) + dtxt;
+      b.title = (봉인됨(m) ? `${m.이름} — ${m.주인}` : `${m.이름} — 미청구`) + dtxt + (nv ? " · 픽셀몬 미구현" : "");
       b.setAttribute("aria-label", b.title);
       b.appendChild(초상(m, "sprite"));
       const lb = el("span", "label");
       lb.textContent = 봉인됨(m) ? m.주인 : m.이름;
       b.appendChild(lb);
       b.appendChild(난이도표시(m, false));
+      if (nv) 배지(b);
       b.addEventListener("click", () => 상세보기(m));
       board.appendChild(b);
     });
@@ -737,19 +834,42 @@ h2{
     if (미정) box.appendChild(칸("미정", 미정, null));
   }
 
+  /* ── 미구현 안내줄 ── */
+  function 안내그리기(){
+    const box = $("#voidnote");
+    if (!box) return;
+    const n = 목록.filter(미구현).length;
+    const 대상수 = 배치대상().length;
+
+    if (!n){
+      box.classList.add("hidden");
+      return;
+    }
+    box.classList.remove("hidden");
+
+    if (상태.scope === "unimpl"){
+      box.innerHTML = `픽셀몬 미구현 <b>${n}</b>종만 보는 중입니다. 서버에 존재하지 않으므로 포획할 수 없습니다.`;
+    } else if (상태.scope === "impl"){
+      box.innerHTML = `미구현 <b>${n}</b>종을 뺀 <b>${대상수}</b>종을 보는 중입니다.`;
+    } else {
+      box.innerHTML = `빗금 표시된 <b>${n}</b>종은 픽셀몬에 아직 구현되지 않아 서버에 존재하지 않습니다.`;
+    }
+  }
+
   /* ── 티어표 ── */
   function 티어그리기(){
     const box = $("#tiers");
     if (!box) return;
     box.textContent = "";
 
+    const 대상 = 배치대상();
     const 등급들 = Object.keys(난이도등급).map(Number).sort((a,b) => b-a); // 어려운 것부터
     const 행 = 등급들.map((v) => ({
       v, g: 난이도등급[v],
-      멤버: 목록.filter((m) => m.난이도 === v)
+      멤버: 대상.filter((m) => m.난이도 === v)
     }));
 
-    const 미정 = 목록.filter((m) => !난이도등급[m.난이도]);
+    const 미정 = 대상.filter((m) => !난이도등급[m.난이도]);
     if (미정.length) 행.push({ v:null, g:null, 멤버:미정 });
 
     행.forEach((r, i) => {
@@ -776,18 +896,22 @@ h2{
       const body = el("div", "tier-body");
       if (!r.멤버.length){
         const e = el("span", "tier-empty");
-        e.textContent = "해당 난이도의 전설이 아직 없습니다";
+        e.textContent = 상태.scope === "unimpl"
+          ? "이 난이도에는 미구현 전설이 없습니다"
+          : "해당 난이도의 전설이 아직 없습니다";
         body.appendChild(e);
       } else {
         r.멤버.forEach((m) => {
-          const c = el("button", "chip" + (봉인됨(m) ? " sealed" : ""));
+          const nv = 미구현(m);
+          const c = el("button", "chip" + (봉인됨(m) ? " sealed" : "") + (nv ? " unimpl" : ""));
           c.type = "button";
-          c.title = 봉인됨(m) ? `${m.이름} — ${m.주인}` : `${m.이름} — 미청구`;
+          c.title = (봉인됨(m) ? `${m.이름} — ${m.주인}` : `${m.이름} — 미청구`) + (nv ? " · 픽셀몬 미구현" : "");
           c.setAttribute("aria-label", c.title);
           c.appendChild(초상(m, "sprite"));
           const t = el("span", "cname");
           t.textContent = m.이름;
           c.appendChild(t);
+          if (nv) 배지(c);
           c.addEventListener("click", () => 상세보기(m));
           body.appendChild(c);
         });
@@ -862,8 +986,10 @@ h2{
     }
 
     결과.forEach((m, i) => {
-      const card = el("article", "entry" + (봉인됨(m) ? " sealed" : "") + " anim");
+      const nv = 미구현(m);
+      const card = el("article", "entry" + (봉인됨(m) ? " sealed" : "") + (nv ? " unimpl" : "") + " anim");
       card.style.animationDelay = Math.min(i * 12, 320) + "ms";
+      if (nv) 배지(card);
 
       card.appendChild(초상(m, "portrait"));
 
@@ -940,6 +1066,15 @@ h2{
       });
     });
 
+    document.querySelectorAll("[data-scope]").forEach((b) => {
+      b.addEventListener("click", () => {
+        상태.scope = b.dataset.scope;
+        document.querySelectorAll("[data-scope]").forEach((x) =>
+          x.setAttribute("aria-pressed", String(x === b)));
+        격자그리기(); 티어그리기(); 안내그리기();
+      });
+    });
+
     document.querySelectorAll("[data-state]").forEach((b) => {
       b.addEventListener("click", () => {
         상태.state = b.dataset.state;
@@ -969,7 +1104,9 @@ h2{
   }
 
   function 전부그리기(){
-    통계그리기(); 격자그리기(); 티어그리기(); 분포그리기(); 세대그리기(); 난이도칩그리기(); 목록그리기(); 소유자그리기(); 보기적용();
+    const 탭 = $("#scopetabs");
+    if (탭) 탭.classList.toggle("hidden", 목록.filter(미구현).length === 0);
+    통계그리기(); 격자그리기(); 티어그리기(); 안내그리기(); 분포그리기(); 세대그리기(); 난이도칩그리기(); 목록그리기(); 소유자그리기(); 보기적용();
   }
 
   /* data.json 이 있으면 그쪽을 씁니다 */

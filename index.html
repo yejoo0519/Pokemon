@@ -97,7 +97,7 @@ const 전설목록 = [
   { dex: 791,   이름: "솔가레오",      세대: 7, 주인: null,            일시: null,         난이도: 5 },
   { dex: 792,   이름: "루나아라",      세대: 7, 주인: null,            일시: null,         난이도: 5 },
   { dex: 800,   이름: "네크로즈마",    세대: 7, 주인: "godgom",        일시: "2026-08-10", 난이도: 2 },
-  { dex: 801,   이름: "마기아나",      세대: 7, 주인: "yonghyun1004",            일시: "2026-08-12",         난이도: 2 },
+  { dex: 801,   이름: "마기아나",      세대: 7, 주인: "yonghyun1004",  일시: "2026-08-12", 난이도: 2 },
   { dex: 802,   이름: "마샤도",        세대: 7, 주인: null,            일시: null,         난이도: 2 },
   { dex: 807,   이름: "제라오라",      세대: 7, 주인: null,            일시: null,         난이도: 2 },
   { dex: 809,   이름: "멜메탈",        세대: 7, 주인: null,            일시: null,         난이도: 1 },
@@ -125,9 +125,6 @@ const 전설목록 = [
   { dex: 1008,  이름: "미라이돈",      세대: 9, 주인: null,            일시: null,         난이도: 5 },
   { dex: 1009,  이름: "굽이치는물결",  세대: 9, 주인: null,            일시: null,         난이도: 1 },
   { dex: 1010,  이름: "무쇠잎새",      세대: 9, 주인: "godgom",        일시: "2026-08-10", 난이도: 1 },
-     // ── 히든 ──
-  { dex: 0,     이름: "???",           세대: 0, 주인: null,            일시: null,         난이도: 5, 히든: true },
-   
   { dex: 1014,  이름: "이야후",        세대: 9, 주인: null,            일시: null,         난이도: 0 },
   { dex: 1015,  이름: "기로치",        세대: 9, 주인: null,            일시: null,         난이도: 0 },
   { dex: 1016,  이름: "조타구",        세대: 9, 주인: null,            일시: null,         난이도: 0 },
@@ -138,6 +135,9 @@ const 전설목록 = [
   { dex: 1023,  이름: "무쇠감투",      세대: 9, 주인: null,            일시: null,         난이도: 0 },
   { dex: 1024,  이름: "테라파고스",    세대: 9, 주인: null,            일시: null,         난이도: 0 },
   { dex: 1025,  이름: "복숭악동",      세대: 9, 주인: null,            일시: null,         난이도: 0 },
+
+  // ── 히든 ──
+  { dex: 0,     이름: "???",           세대: 0, 주인: null,            일시: null,         난이도: 5, 히든: true },
 ];
 
 /* 이미지 출처
@@ -179,10 +179,117 @@ const 미구현목록 = [
   "테라파고스", "복숭악동",
 ];
 
+/* ══════════════════════════════════════════════════════════════
+   ④  댓글 · 좌표 공유  (Firebase)
+
+   아래 firebaseConfig 를 본인 것으로 바꾸면 댓글 기능이 켜집니다.
+   비워두면 댓글창이 자동으로 숨겨지고, 나머지는 그대로 동작합니다.
+
+   [설정 방법]
+   1. https://console.firebase.google.com 에서 프로젝트 생성
+   2. 좌측 빌드 → Firestore Database → 데이터베이스 만들기
+      (위치는 asia-northeast3 서울 권장, "프로덕션 모드"로 시작)
+   3. 프로젝트 설정(톱니) → 내 앱 → 웹(</>) 추가
+      → 나오는 firebaseConfig 를 통째로 아래에 붙여넣기
+   4. Firestore → 규칙 탭에 아래 규칙을 붙여넣고 게시
+      (규칙 문법은 한글 식별자를 지원하지 않아 필드명이 영문입니다)
+
+      rules_version = '2';
+      service cloud.firestore {
+        match /databases/{database}/documents {
+          match /notes/{id} {
+            allow read: if true;
+            allow create: if request.resource.data.nick is string
+                          && request.resource.data.nick.size() > 0
+                          && request.resource.data.nick.size() <= 20
+                          && request.resource.data.body is string
+                          && request.resource.data.body.size() > 0
+                          && request.resource.data.body.size() <= 500;
+            allow delete: if true;
+            allow update: if false;
+          }
+        }
+      }
+
+   apiKey 는 공개돼도 괜찮습니다. 접근 제어는 위 규칙이 담당합니다.
+   ══════════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+  // apiKey:            "...",
+  // authDomain:        "...",
+  // projectId:         "...",
+  // storageBucket:     "...",
+  // messagingSenderId: "...",
+  // appId:             "...",
+};
+
+/* 관리자 암호 — 이걸 닉네임 칸에 넣고 인증하면 남의 글도 지울 수 있습니다.
+   본인 것으로 바꾸세요. */
+const 관리자암호 = "마켓몬관리자";
+
 /* 같은 폴더에 data.json 이 있으면 위 목록 대신 그 파일을 씁니다.
    나중에 서버에서 JSON 을 자동으로 뽑을 때 쓰려고 열어둔 통로입니다.
    형식은 위 배열과 똑같습니다. 안 쓸 거면 false 로. */
 const JSON자동로드 = true;
+
+/* 댓글 모듈이 준비되면 채워집니다 */
+window.댓글API = null;
+window.댓글대기 = new Promise((r) => { window.__댓글준비 = r; });
+</script>
+
+<script type="module">
+/* ── Firebase Firestore 연결 ──
+   firebaseConfig 가 비어 있으면 아무것도 하지 않고 조용히 끝납니다. */
+(async () => {
+  const cfg = window.firebaseConfig || firebaseConfig;
+  if (!cfg || !cfg.projectId){
+    window.__댓글준비(null);
+    return;
+  }
+
+  try {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const {
+      getFirestore, collection, addDoc, deleteDoc, doc,
+      onSnapshot, serverTimestamp
+    } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+
+    const app = initializeApp(cfg);
+    const db  = getFirestore(app);
+    const col = collection(db, "notes");
+
+    const api = {
+      구독(콜백){
+        return onSnapshot(col, (snap) => {
+          const 목록 = [];
+          snap.forEach((d) => 목록.push({ id: d.id, ...d.data() }));
+          콜백(목록);
+        }, (err) => {
+          console.error("[댓글] 구독 실패:", err);
+          콜백(null, err);
+        });
+      },
+      async 쓰기({ 몬, 닉, 내용, 좌표, 키 }){
+        return addDoc(col, {
+          mon:   몬,
+          nick:  닉,
+          body:  내용,
+          coord: 좌표 || null,
+          key:   키   || null,
+          at:    serverTimestamp()
+        });
+      },
+      async 삭제(id){
+        return deleteDoc(doc(db, "notes", id));
+      }
+    };
+
+    window.댓글API = api;
+    window.__댓글준비(api);
+  } catch (e){
+    console.error("[댓글] 초기화 실패:", e);
+    window.__댓글준비(null);
+  }
+})();
 </script>
 
 <style>
@@ -461,6 +568,109 @@ h2{
 }
 .voidnote b{ color:var(--bone); font-weight:600; }
 
+/* ───────── 상세 패널 ───────── */
+.scrim{
+  position:fixed; inset:0; background:rgba(6,7,12,.78);
+  display:grid; place-items:center; padding:24px; z-index:60;
+  animation:fade .18s ease both;
+}
+@keyframes fade{ from{ opacity:0 } to{ opacity:1 } }
+
+.sheet{
+  width:min(680px, 100%); max-height:88vh; overflow:auto;
+  background:var(--ink); border:1px solid var(--rule);
+  animation:pop .22s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes pop{ from{ opacity:0; transform:translateY(10px) } to{ opacity:1; transform:none } }
+
+.sheet-head{
+  display:grid; grid-template-columns:96px 1fr auto; gap:18px; align-items:start;
+  padding:22px; border-bottom:1px solid var(--rule); position:relative;
+}
+.sheet-head .portrait{ width:96px; height:96px; }
+.sheet.unimpl{ background-image:repeating-linear-gradient(-45deg, transparent 0 7px, rgba(89,96,122,.07) 7px 14px); }
+.sheet.unimpl .portrait img{ filter:grayscale(1) brightness(.45); opacity:.55; }
+.sheet.sealed .portrait img{ filter:grayscale(1) brightness(.42); }
+
+.xbtn{
+  background:transparent; border:1px solid var(--rule); color:var(--muted);
+  font-family:var(--mono); font-size:16px; line-height:1; cursor:pointer;
+  width:32px; height:32px; display:grid; place-items:center;
+}
+.xbtn:hover{ color:var(--bone); border-color:var(--muted); }
+
+.sheet-body{ padding:22px; }
+
+.talk-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+  margin:0 0 14px; flex-wrap:wrap;
+}
+.talk-head h4{
+  font-family:var(--serif); font-weight:900; font-size:16px; margin:0;
+}
+.talk-count{ font-family:var(--mono); font-size:11px; color:var(--muted); }
+
+.notes{ list-style:none; padding:0; margin:0 0 20px; }
+.note{ border-top:1px solid var(--rule); padding:13px 0; }
+.note:last-child{ border-bottom:1px solid var(--rule); }
+.note-top{
+  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  font-family:var(--mono); font-size:11px; color:var(--muted); margin-bottom:5px;
+}
+.note-who{ color:var(--brass); font-weight:600; font-size:12px; }
+.note-body{ font-size:14px; line-height:1.6; white-space:pre-wrap; word-break:break-word; }
+
+.coord{
+  display:inline-flex; align-items:center; gap:8px; margin-top:8px;
+  border:1px solid var(--rule); background:var(--panel);
+  font-family:var(--mono); font-size:12px; color:var(--bone);
+  padding:5px 9px; cursor:pointer;
+}
+.coord:hover{ border-color:var(--brass); }
+.coord .pin{ color:var(--brass); }
+.coord .cp{ color:var(--muted); font-size:10px; }
+
+.del{
+  margin-left:auto; background:transparent; border:0; cursor:pointer;
+  font-family:var(--mono); font-size:10px; color:var(--muted);
+}
+.del:hover{ color:#B4483F; }
+
+.notes-empty{
+  font-family:var(--mono); font-size:12px; color:var(--muted);
+  border:1px dashed var(--rule); padding:20px; text-align:center; margin-bottom:20px;
+}
+
+.form{ display:grid; gap:9px; }
+.form .row{ display:flex; gap:9px; flex-wrap:wrap; }
+.form input, .form textarea{
+  background:var(--panel); border:1px solid var(--rule); color:var(--bone);
+  font-family:var(--mono); font-size:13px; padding:9px 11px; width:100%;
+}
+.form input::placeholder, .form textarea::placeholder{ color:var(--muted); }
+.form input:focus, .form textarea:focus{ outline:none; border-color:var(--brass); }
+.form textarea{ resize:vertical; min-height:76px; font-family:var(--sans); font-size:14px; }
+.form .nick{ flex:1 1 150px; width:auto; }
+.form .xyz{ flex:2 1 220px; width:auto; }
+
+.send{
+  justify-self:end; background:var(--brass); color:var(--ink); border:0;
+  font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.06em;
+  padding:9px 20px; cursor:pointer;
+}
+.send:hover{ filter:brightness(1.1); }
+.send:disabled{ background:var(--rule); color:var(--muted); cursor:not-allowed; }
+
+.formnote{ font-family:var(--mono); font-size:10.5px; color:var(--muted); }
+.formnote.warn{ color:#C2733C; }
+
+/* 격자 칸의 댓글 수 */
+.talkdot{
+  position:absolute; bottom:6px; right:7px;
+  font-family:var(--mono); font-size:9.5px; color:var(--brass);
+  display:flex; align-items:center; gap:2px; pointer-events:none;
+}
+
 /* ───────── 티어표 ───────── */
 .tiers{ display:flex; flex-direction:column; gap:1px; background:var(--rule); border:1px solid var(--rule); }
 
@@ -622,6 +832,8 @@ h2{
 
 </div>
 
+<div id="sheetroot"></div>
+
 <script>
 (() => {
   "use strict";
@@ -752,6 +964,12 @@ h2{
       b.appendChild(lb);
       b.appendChild(난이도표시(m, false));
       if (nv) 배지(b);
+      const cn = 댓글수(m);
+      if (cn){
+        const dot = el("span", "talkdot");
+        dot.textContent = "\u25CF " + cn;
+        b.appendChild(dot);
+      }
       b.addEventListener("click", () => 상세보기(m));
       board.appendChild(b);
     });
@@ -922,13 +1140,7 @@ h2{
   }
 
   /* 클릭 시 아래 목록을 해당 전설로 좁힙니다 */
-  function 상세보기(m){
-    $("#q").value = m.이름;
-    상태.q = m.이름.toLowerCase();
-    목록그리기();
-    const t = $("#reg-title");
-    if (t && t.scrollIntoView) t.scrollIntoView({ behavior:"smooth", block:"start" });
-  }
+  function 상세보기(m){ 패널열기(m); }
 
   /* ── 보기 전환 ── */
   function 보기적용(){
@@ -937,6 +1149,275 @@ h2{
     $("#tiers").classList.toggle("hidden", grid);
     document.querySelectorAll("[data-view]").forEach((b) =>
       b.setAttribute("aria-pressed", String(b.dataset.view === 상태.view)));
+  }
+
+  /* ══════════ 댓글 ══════════ */
+  const LS닉 = "마켓몬_닉";
+  const LS키 = "마켓몬_키";
+  let 댓글맵 = new Map();     // 몬 이름 → [댓글]
+  let 댓글켜짐 = false;
+  let 열린몬 = null;
+
+  function 내키(){
+    let k = null;
+    try { k = localStorage.getItem(LS키); } catch(_){}
+    if (!k){
+      k = "k" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      try { localStorage.setItem(LS키, k); } catch(_){}
+    }
+    return k;
+  }
+  const 내닉 = () => { try { return localStorage.getItem(LS닉) || ""; } catch(_){ return ""; } };
+  const 닉저장 = (v) => { try { localStorage.setItem(LS닉, v); } catch(_){} };
+
+  const 관리자 = () => 내닉() === 관리자암호;
+
+  function 댓글정리(목록){
+    const m = new Map();
+    (목록 || []).forEach((c) => {
+      const k = String(c.mon || c.몬 || "").trim();
+      if (!m.has(k)) m.set(k, []);
+      m.get(k).push(c);
+    });
+    const 초 = (c) => { const t = c.at || c.시각; return (t && t.seconds) ? t.seconds : 0; };
+    m.forEach((arr) => arr.sort((a,b) => 초(a) - 초(b)));
+    return m;
+  }
+
+  const 댓글수 = (m) => (댓글맵.get(String(m.이름).trim()) || []).length;
+
+  function 시각표시(t){
+    if (!t || !t.seconds) return "방금";
+    const d = new Date(t.seconds * 1000);
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  /* "123 64 -87" 또는 "x:123 y:64 z:-87" 에서 좌표 3개를 뽑습니다 */
+  function 좌표파싱(v){
+    const nums = String(v || "").match(/-?\d+(\.\d+)?/g);
+    if (!nums || nums.length < 3) return null;
+    return nums.slice(0, 3).map((n) => Math.round(parseFloat(n))).join(" ");
+  }
+
+  /* ── 상세 패널 ── */
+  function 패널열기(m){
+    열린몬 = m;
+    const root = $("#sheetroot");
+    root.textContent = "";
+
+    const scrim = el("div", "scrim");
+    scrim.addEventListener("click", (e) => { if (e.target === scrim) 패널닫기(); });
+
+    const sheet = el("div", "sheet" + (봉인됨(m) ? " sealed" : "") + (미구현(m) ? " unimpl" : ""));
+    sheet.setAttribute("role", "dialog");
+    sheet.setAttribute("aria-modal", "true");
+
+    /* 머리 */
+    const head = el("div", "sheet-head");
+    head.appendChild(초상(m, "portrait"));
+
+    const meta = el("div", "meta");
+    const no = el("span", "dexno");
+    no.textContent = m.히든 ? "NO.???? · 히든"
+      : "NO." + String(m.dex).padStart(4, "0") + " · " + m.세대 + "세대";
+    meta.appendChild(no);
+
+    const h = el("h3", "name");
+    h.textContent = m.이름;
+    meta.appendChild(h);
+
+    const st = el("div", "status");
+    if (봉인됨(m)){
+      const s = el("div", "stamp");
+      const w = el("span", "who"); w.textContent = m.주인; s.appendChild(w);
+      if (m.일시){ const d = el("span", "when"); d.textContent = m.일시; s.appendChild(d); }
+      st.appendChild(s);
+    } else {
+      st.innerHTML = '<span class="open">주인 없음</span><br>기믹이 열려 있습니다';
+    }
+    meta.appendChild(st);
+    meta.appendChild(난이도표시(m, true));
+    if (미구현(m)){
+      const v = el("p", "formnote warn");
+      v.style.marginTop = "10px";
+      v.textContent = "픽셀몬에 아직 구현되지 않아 서버에 존재하지 않습니다.";
+      meta.appendChild(v);
+    }
+    head.appendChild(meta);
+
+    const x = el("button", "xbtn");
+    x.type = "button";
+    x.textContent = "✕";
+    x.setAttribute("aria-label", "닫기");
+    x.addEventListener("click", 패널닫기);
+    head.appendChild(x);
+
+    sheet.appendChild(head);
+
+    /* 몸통 */
+    const body = el("div", "sheet-body");
+    body.id = "talkbody";
+    sheet.appendChild(body);
+
+    scrim.appendChild(sheet);
+    root.appendChild(scrim);
+    댓글그리기();
+
+    document.addEventListener("keydown", ESC처리);
+  }
+
+  function ESC처리(e){ if (e.key === "Escape") 패널닫기(); }
+
+  function 패널닫기(){
+    열린몬 = null;
+    $("#sheetroot").textContent = "";
+    document.removeEventListener("keydown", ESC처리);
+  }
+
+  /* ── 댓글 영역 ── */
+  function 댓글그리기(){
+    const body = $("#talkbody");
+    if (!body || !열린몬) return;
+    body.textContent = "";
+    const m = 열린몬;
+
+    if (!댓글켜짐){
+      const p = el("p", "notes-empty");
+      p.textContent = "댓글 기능이 아직 설정되지 않았습니다. 파일 상단의 firebaseConfig 를 채워주세요.";
+      body.appendChild(p);
+      return;
+    }
+
+    const 목록 = 댓글맵.get(String(m.이름).trim()) || [];
+
+    const hd = el("div", "talk-head");
+    const t = el("h4"); t.textContent = "공략 · 좌표 공유";
+    const c = el("span", "talk-count"); c.textContent = 목록.length + "개";
+    hd.append(t, c);
+    body.appendChild(hd);
+
+    if (!목록.length){
+      const p = el("p", "notes-empty");
+      p.textContent = "아직 글이 없습니다. 첫 단서를 남겨보세요.";
+      body.appendChild(p);
+    } else {
+      const ul = el("ul", "notes");
+      목록.forEach((n) => ul.appendChild(댓글하나(n)));
+      body.appendChild(ul);
+    }
+
+    body.appendChild(작성폼(m));
+  }
+
+  function 댓글하나(n){
+    const li = el("li", "note");
+
+    const top = el("div", "note-top");
+    const who = el("span", "note-who"); who.textContent = n.nick || n.닉 || "익명";
+    const when = el("span"); when.textContent = 시각표시(n.at || n.시각);
+    top.append(who, when);
+
+    const 작성자키 = n.key || n.키;
+    if (관리자() || (작성자키 && 작성자키 === 내키())){
+      const d = el("button", "del");
+      d.type = "button";
+      d.textContent = "삭제";
+      d.addEventListener("click", async () => {
+        if (!confirm("이 글을 삭제할까요?")) return;
+        try { await window.댓글API.삭제(n.id); }
+        catch(e){ alert("삭제 실패: " + e.message); }
+      });
+      top.appendChild(d);
+    }
+    li.appendChild(top);
+
+    const b = el("div", "note-body");
+    b.textContent = n.body || n.내용 || "";
+    li.appendChild(b);
+
+    const 좌표값 = n.coord || n.좌표;
+    if (좌표값){
+      const cd = el("button", "coord");
+      cd.type = "button";
+      cd.innerHTML = `<span class="pin">▣</span><span>${좌표값}</span><span class="cp">복사</span>`;
+      cd.title = "클릭하면 /tp 명령어가 복사됩니다";
+      cd.addEventListener("click", () => {
+        const cmd = `/tp @s ${좌표값}`;
+        const done = () => {
+          const lab = cd.querySelector(".cp");
+          lab.textContent = "복사됨";
+          setTimeout(() => { lab.textContent = "복사"; }, 1400);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(cmd).then(done, () => prompt("복사하세요", cmd));
+        } else {
+          prompt("복사하세요", cmd);
+        }
+      });
+      li.appendChild(cd);
+    }
+    return li;
+  }
+
+  function 작성폼(m){
+    const f = el("div", "form");
+
+    const row = el("div", "row");
+    const nick = el("input", "nick");
+    nick.type = "text"; nick.maxLength = 20;
+    nick.placeholder = "닉네임";
+    nick.value = 내닉();
+
+    const xyz = el("input", "xyz");
+    xyz.type = "text"; xyz.maxLength = 40;
+    xyz.placeholder = "좌표 (선택) 예: 123 64 -87";
+    row.append(nick, xyz);
+    f.appendChild(row);
+
+    const ta = el("textarea");
+    ta.maxLength = 500;
+    ta.placeholder = "공략, 단서, 주의사항을 남겨주세요.";
+    f.appendChild(ta);
+
+    const note = el("p", "formnote");
+    note.textContent = "누구나 볼 수 있는 글입니다. 닉네임은 이 브라우저에 저장됩니다.";
+    f.appendChild(note);
+
+    const btn = el("button", "send");
+    btn.type = "button";
+    btn.textContent = "남기기";
+    btn.addEventListener("click", async () => {
+      const 닉 = nick.value.trim();
+      const 내용 = ta.value.trim();
+      if (!닉){ note.textContent = "닉네임을 입력해주세요."; note.classList.add("warn"); nick.focus(); return; }
+      if (!내용){ note.textContent = "내용을 입력해주세요."; note.classList.add("warn"); ta.focus(); return; }
+
+      닉저장(닉);
+      const 좌표 = 좌표파싱(xyz.value);
+      if (xyz.value.trim() && !좌표){
+        note.textContent = "좌표는 숫자 3개로 적어주세요. 예: 123 64 -87";
+        note.classList.add("warn");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "보내는 중";
+      try {
+        await window.댓글API.쓰기({ 몬: m.이름, 닉, 내용, 좌표, 키: 내키() });
+        ta.value = ""; xyz.value = "";
+        note.classList.remove("warn");
+        note.textContent = "등록했습니다.";
+      } catch(e){
+        note.classList.add("warn");
+        note.textContent = "등록 실패: " + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "남기기";
+      }
+    });
+    f.appendChild(btn);
+    return f;
   }
 
   /* ── 등록 카드 ── */
@@ -1022,6 +1503,8 @@ h2{
       meta.appendChild(난이도표시(m, true));
 
       card.appendChild(meta);
+      card.style.cursor = "pointer";
+      card.addEventListener("click", () => 상세보기(m));
       reg.appendChild(card);
     });
   }
@@ -1113,6 +1596,18 @@ h2{
   async function 시작(){
     조작배선();
     전부그리기();
+
+    /* 댓글 구독 */
+    window.댓글대기.then((api) => {
+      if (!api) return;
+      댓글켜짐 = true;
+      api.구독((목록, err) => {
+        if (err) return;
+        댓글맵 = 댓글정리(목록);
+        격자그리기();
+        if (열린몬) 댓글그리기();
+      });
+    });
 
     if (!JSON자동로드) return;
     try {

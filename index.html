@@ -214,12 +214,12 @@ const 미구현목록 = [
    apiKey 는 공개돼도 괜찮습니다. 접근 제어는 위 규칙이 담당합니다.
    ══════════════════════════════════════════════════════════════ */
 const firebaseConfig = {
-  // apiKey:            "...",
-  // authDomain:        "...",
-  // projectId:         "...",
-  // storageBucket:     "...",
-  // messagingSenderId: "...",
-  // appId:             "...",
+  apiKey:            "AIzaSyBV2Koingk-6BP47oL27pprLIoWtdB5xTM",
+  authDomain:        "poke-cf0a8.firebaseapp.com",
+  projectId:         "poke-cf0a8",
+  storageBucket:     "poke-cf0a8.firebasestorage.app",
+  messagingSenderId: "451751668772",
+  appId:             "1:451751668772:web:2a9f03ebd40a59f98f3cb1",
 };
 
 /* 관리자 암호 — 이걸 닉네임 칸에 넣고 인증하면 남의 글도 지울 수 있습니다.
@@ -232,6 +232,7 @@ const 관리자암호 = "마켓몬관리자";
 const JSON자동로드 = true;
 
 /* 댓글 모듈이 준비되면 채워집니다 */
+window.firebaseConfig = firebaseConfig;
 window.댓글API = null;
 window.댓글대기 = new Promise((r) => { window.__댓글준비 = r; });
 </script>

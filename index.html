@@ -100,7 +100,8 @@ const 전설목록 = [
   { dex: 800,   이름: "네크로즈마",    세대: 7, 주인: "godgom",        일시: "2026-08-10", 난이도: 2 },
   { dex: 801,   이름: "마기아나",      세대: 7, 주인: null,            일시: null,         난이도: 2 },
   { dex: 802,   이름: "마샤도",        세대: 7, 주인: null,            일시: null,         난이도: 2 },
-  { dex: 807,   이름: "제라오라",      세대: 7, 주인: null,            일시: null,         난이도: 3 },
+  { dex: 807,   이름: "제라오라",      세대: 7, 주인: null,            일시: null,         난이도: 2 },
+  { dex: 809,   이름: "멜메탈",        세대: 7, 주인: null,            일시: null,         난이도: 1 },
 
   // ── 8세대 ──
   { dex: 888,   이름: "자시안",        세대: 8, 주인: null,            일시: null,         난이도: 5 },
@@ -110,21 +111,24 @@ const 전설목록 = [
   { dex: 893,   이름: "자루도",        세대: 8, 주인: null,            일시: null,         난이도: 1 },
   { dex: 894,   이름: "레지에레키",    세대: 8, 주인: "godgom",        일시: "2026-08-11", 난이도: 1 },
   { dex: 895,   이름: "레지드래고",    세대: 8, 주인: null,            일시: null,         난이도: 1 },
-  { dex: 898,   이름: "버드렉스",      세대: 8, 주인: null,            일시: null,         난이도: 2 },
+  { dex: 898,   이름: "버드렉스",      세대: 8, 주인: null,            일시: null,         난이도: 3 },
   // 리전폼 — cdn 은 PokeAPI 폼 ID, 이미지 는 로컬 파일명
   { dex: 144,   이름: "가라르 프리져", 세대: 8, 주인: null,            일시: null, cdn: 10169, 이미지: "144-galarian", 난이도: 1 },
   { dex: 145,   이름: "가라르 썬더",   세대: 8, 주인: null,            일시: null, cdn: 10170, 이미지: "145-galarian", 난이도: 1 },
   { dex: 146,   이름: "가라르 파이어", 세대: 8, 주인: "hw00_",         일시: "2026-08-10", cdn: 10171, 이미지: "146-galarian", 난이도: 1 },
 
   // ── 9세대 ──
-  { dex: 1001,  이름: "총지엔",        세대: 9, 주인: null,            일시: null,         난이도: 1 },
-  { dex: 1002,  이름: "파오젠",        세대: 9, 주인: null,            일시: null,         난이도: 2 },
-  { dex: 1003,  이름: "딩루",          세대: 9, 주인: null,            일시: null,         난이도: 1 },
-  { dex: 1004,  이름: "위유이",        세대: 9, 주인: null,            일시: null,         난이도: 1 },
+  { dex: 1001,  이름: "총지엔",        세대: 9, 주인: null,            일시: null,         난이도: 4 },
+  { dex: 1002,  이름: "파오젠",        세대: 9, 주인: null,            일시: null,         난이도: 4 },
+  { dex: 1003,  이름: "딩루",          세대: 9, 주인: null,            일시: null,         난이도: 4 },
+  { dex: 1004,  이름: "위유이",        세대: 9, 주인: null,            일시: null,         난이도: 4 },
   { dex: 1007,  이름: "코라이돈",      세대: 9, 주인: null,            일시: null,         난이도: 5 },
   { dex: 1008,  이름: "미라이돈",      세대: 9, 주인: null,            일시: null,         난이도: 5 },
   { dex: 1009,  이름: "굽이치는물결",  세대: 9, 주인: null,            일시: null,         난이도: 1 },
   { dex: 1010,  이름: "무쇠잎새",      세대: 9, 주인: "godgom",        일시: "2026-08-10", 난이도: 1 },
+
+  // ── 히든 ──
+  { dex: 0,     이름: "???",           세대: 0, 주인: null,            일시: null,         난이도: 5, 히든: true },
 ];
 
 /* 이미지 출처
@@ -389,6 +393,16 @@ h2{
 }
 .spread .seg-bar b{ display:block; font-size:16px; font-weight:600; }
 
+/* ───────── 히든 ───────── */
+.mystery{ display:grid !important; place-items:center; }
+.qmark{
+  font-family:var(--serif); font-weight:900; color:var(--brass);
+  opacity:.42; line-height:1; user-select:none;
+}
+.cell .mystery .qmark{ font-size:52px; }
+.portrait .qmark{ font-size:46px; }
+.chip .mystery .qmark{ font-size:26px; }
+
 /* ───────── 티어표 ───────── */
 .tiers{ display:flex; flex-direction:column; gap:1px; background:var(--rule); border:1px solid var(--rule); }
 
@@ -584,6 +598,15 @@ h2{
   /* 이미지가 없으면 도감번호로 대체 */
   function 초상(m, cls){
     const box = el("div", cls);
+
+    if (m.히든){
+      box.classList.add("mystery");
+      const q = el("span", "qmark");
+      q.textContent = "?";
+      box.appendChild(q);
+      return box;
+    }
+
     const img = new Image();
     img.src = 스프라이트(m);
     img.alt = "";
@@ -642,7 +665,8 @@ h2{
   function 세대그리기(){
     const wrap = $("#gens");
     wrap.textContent = "";
-    const gens = [...new Set(목록.map((m) => m.세대))].sort((a,b) => a-b);
+    const gens = [...new Set(목록.map((m) => m.세대))]
+      .sort((a,b) => (a === 0 ? 1 : b === 0 ? -1 : a - b));   // 히든(0)은 맨 뒤
 
     const mk = (label, val) => {
       const b = el("button", "gen");
@@ -657,7 +681,7 @@ h2{
     };
 
     wrap.appendChild(mk("전 세대", null));
-    gens.forEach((g) => wrap.appendChild(mk(`${g}세대`, g)));
+    gens.forEach((g) => wrap.appendChild(mk(g === 0 ? "히든" : `${g}세대`, g)));
   }
 
   /* ── 난이도 칩 ── */
@@ -847,7 +871,9 @@ h2{
       const meta = el("div", "meta");
 
       const no = el("span", "dexno");
-      no.textContent = "NO." + String(m.dex).padStart(4, "0") + " · " + m.세대 + "세대";
+      no.textContent = m.히든
+        ? "NO.???? · 히든"
+        : "NO." + String(m.dex).padStart(4, "0") + " · " + m.세대 + "세대";
       meta.appendChild(no);
 
       const h = el("h3", "name");
